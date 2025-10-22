@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
 
 export type UserDocument = User & Document;
@@ -28,6 +28,12 @@ export class User {
 
   @Prop({ default: '' })
   profileImage: string;
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }], default: [] })
+  following: Types.ObjectId[]; // Array de IDs que sigue
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }], default: [] })
+  followers: Types.ObjectId[]; // Array de IDs que lo siguen
 
   @Prop({ default: 0 })
   followersCount: number;

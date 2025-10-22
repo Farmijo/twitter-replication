@@ -3,7 +3,25 @@ import { Document, Types } from 'mongoose';
 
 export type TweetDocument = Tweet & Document;
 
-@Schema({ timestamps: true })
+@Schema({ 
+  timestamps: true,
+  toJSON: {
+    transform: function(doc, ret) {
+      ret.id = ret._id;
+      delete ret._id;
+      delete ret.__v;
+      return ret;
+    }
+  },
+  toObject: {
+    transform: function(doc, ret) {
+      ret.id = ret._id;
+      delete ret._id;
+      delete ret.__v;
+      return ret;
+    }
+  }
+})
 export class Tweet {
   @Prop({ required: true })
   content: string;

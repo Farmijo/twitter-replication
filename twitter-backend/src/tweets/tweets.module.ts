@@ -3,10 +3,14 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { TweetsService } from './tweets.service';
 import { TweetsController } from './tweets.controller';
 import { Tweet, TweetSchema } from './schemas/tweet.schema';
+import { User, UserSchema } from '../users/schemas/user.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Tweet.name, schema: TweetSchema }]),
+    MongooseModule.forFeature([
+      { name: Tweet.name, schema: TweetSchema },
+      { name: User.name, schema: UserSchema },
+    ]),
   ],
   controllers: [TweetsController],
   providers: [TweetsService],

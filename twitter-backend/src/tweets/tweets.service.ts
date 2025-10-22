@@ -22,7 +22,13 @@ export class TweetsService {
     };
 
     const createdTweet = new this.tweetModel(tweetData);
-    return await createdTweet.save();
+    const savedTweet = await createdTweet.save();
+    
+    // Poblar la información del usuario antes de retornar
+    return await this.tweetModel
+      .findById(savedTweet._id)
+      .populate('userId', 'username profileImage')
+      .exec();
   }
 
   async findAll(limit: number = 50, skip: number = 0): Promise<Tweet[]> {
@@ -139,7 +145,14 @@ export class TweetsService {
     };
 
     const retweet = new this.tweetModel(retweetData);
-    return await retweet.save();
+    const savedRetweet = await retweet.save();
+    
+    // Poblar la información del usuario antes de retornar
+    return await this.tweetModel
+      .findById(savedRetweet._id)
+      .populate('userId', 'username profileImage')
+      .populate('originalTweetId')
+      .exec();
   }
 
   private extractHashtags(content: string): string[] {

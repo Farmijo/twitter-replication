@@ -138,12 +138,20 @@ twitter-alike/
 |--------|----------|-------------|------------|
 | GET | `/api/users` | Get all users | JWT + Admin |
 | GET | `/api/users/:id` | Get user by ID | JWT |
-| GET | `/api/users/username/:username` | Get user by username | Public |
+| GET | `/api/users/username/:username` | Get user by username | JWT |
 | GET | `/api/users/email/:email` | Get user by email | JWT + Admin |
-| PATCH | `/api/users/:id` | Update user | JWT (own/admin) |
 | DELETE | `/api/users/:id` | Delete user | JWT + Admin |
-| PATCH | `/api/users/:id/follow` | Increment followers | JWT |
-| PATCH | `/api/users/:id/following` | Increment following | JWT |
+| GET | `/api/users/:id/stats` | Get user follow stats | Public |
+
+### Following System
+
+| Method | Endpoint | Description | Protection |
+|--------|----------|-------------|------------|
+| POST | `/api/users/:id/follow` | Follow user | JWT |
+| DELETE | `/api/users/:id/follow` | Unfollow user | JWT |
+| GET | `/api/users/:id/following` | Get users being followed | Public |
+| GET | `/api/users/:id/followers` | Get user followers | Public |
+| GET | `/api/users/:id/is-following` | Check if following user | JWT |
 
 ### Tweets
 
@@ -216,21 +224,43 @@ curl -X GET http://localhost:3000/api/users \\
 curl "http://localhost:3000/api/tweets/hashtag/nestjs"
 ```
 
+### Follow User (Requires authentication)
+
+```bash
+curl -X POST http://localhost:3000/api/users/USER_ID_TO_FOLLOW/follow \\
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+### Get User Followers (Public)
+
+```bash
+curl "http://localhost:3000/api/users/USER_ID/followers?limit=10&skip=0"
+```
+
+### Check if Following (Requires authentication)
+
+```bash
+curl -X GET http://localhost:3000/api/users/USER_ID/is-following \\
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
 ## 🗄️ Database Schemas
 
 ### User
 
 ```typescript
 {
-  username: string;        // unique
-  email: string;          // unique
-  password: string;       // hashed with bcrypt
-  role: 'user' | 'admin'; // UserRole enum
+  username: string;              // unique
+  email: string;                // unique
+  password: string;             // hashed with bcrypt
+  role: 'user' | 'admin';       // UserRole enum
   bio?: string;
   profileImage?: string;
-  followersCount: number; // default: 0
-  followingCount: number; // default: 0
-  isActive: boolean;      // default: true
+  following: ObjectId[];        // Array of User IDs being followed
+  followers: ObjectId[];        // Array of User IDs that follow this user
+  followersCount: number;       // default: 0
+  followingCount: number;       // default: 0
+  isActive: boolean;            // default: true
   createdAt: Date;
   updatedAt: Date;
 }
@@ -468,7 +498,7 @@ This basic API is ready to evolve into an enterprise-level system. Here's the te
 - [x] Admin/User Role System ✅
 - [x] Protected Route Security ✅
 - [x] Secure Password Hashing ✅
-- [ ] Real followers/following system
+- [x] Real followers/following system ✅
 - [ ] Tweet replies (threading)
 - [ ] Image upload
 - [ ] Rate limiting
