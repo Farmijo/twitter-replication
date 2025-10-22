@@ -19,10 +19,21 @@ import { CreateTweetDto, UpdateTweetDto } from './dto/tweet.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AdminGuard } from '../auth/admin.guard';
 
+// New Use Cases - Hexagonal Architecture
+import { GetTweetByIdUseCase } from './application/use-cases/get-tweet-by-id.use-case';
+import { GetTweetsByAuthorUseCase } from './application/use-cases/get-tweets-by-author.use-case';
+import { GetRepliesUseCase } from './application/use-cases/get-replies.use-case';
+
 @Controller('tweets')
 @UsePipes(new ValidationPipe())
 export class TweetsController {
-  constructor(private readonly tweetsService: TweetsService) {}
+  constructor(
+    private readonly tweetsService: TweetsService,
+    // New Use Cases
+    private readonly getTweetByIdUseCase: GetTweetByIdUseCase,
+    private readonly getTweetsByAuthorUseCase: GetTweetsByAuthorUseCase,
+    private readonly getRepliesUseCase: GetRepliesUseCase,
+  ) {}
 
   @UseGuards(JwtAuthGuard)
   @Post()
@@ -162,6 +173,51 @@ export class TweetsController {
     return {
       message: 'Tweet retweeted successfully',
       data: retweet,
+    };
+  }
+
+  // ========================================
+  // NUEVOS ENDPOINTS - ARQUITECTURA HEXAGONAL
+  // ========================================
+
+  /**
+   * Obtener tweet por ID (usando arquitectura hexagonal)
+   * Endpoint: GET /tweets/v2/:id
+   */
+  @Get('v2/:id')
+  async getTweetByIdV2(@Param('id') id: string) {
+    const tweet = await this.getTweetByIdUseCase.execute(id);
+    return {
+      message: 'Tweet retrieved successfully',
+      data: tweet,
+    };
+  }
+
+  /**
+   * Obtener tweets de un autor (usando arquitectura hexagonal)
+   * Endpoint: GET /tweets/v2/author/:authorId
+   */
+  @Get('v2/author/:authorId')
+  async getTweetsByAuthorV2(@Param('authorId') authorId: string) {
+    const tweets = await this.getTweetsByAuthorUseCase.execute(authorId);
+    return {
+      message: 'Author tweets retrieved successfully',
+      data: tweets,
+      count: tweets.length,
+    };
+  }
+
+  /**
+   * Obtener respuestas a un tweet (usando arquitectura hexagonal)
+   * Endpoint: GET /tweets/v2/:id/replies
+   */
+  @Get('v2/:id/replies')
+  async getRepliesV2(@Param('id') id: string) {
+    const replies = await this.getRepliesUseCase.execute(id);
+    return {
+      message: 'Tweet replies retrieved successfully',
+      data: replies,
+      count: replies.length,
     };
   }
 }
