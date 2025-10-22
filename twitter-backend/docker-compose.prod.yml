@@ -3,8 +3,8 @@ version: '3.8'
 services:
   mongodb:
     image: mongo:7.0
-    container_name: mongodb-test
-    restart: always
+    container_name: mongodb-prod
+    restart: unless-stopped
     ports:
       - "27017:27017"
     environment:
@@ -20,26 +20,23 @@ services:
   api:
     build:
       context: .
-      dockerfile: Dockerfile.dev  # Usar Dockerfile específico para desarrollo
-    container_name: nestjs-api
-    restart: always
+      dockerfile: Dockerfile  # Usar Dockerfile multi-stage para producción
+      target: production
+    container_name: nestjs-api-prod
+    restart: unless-stopped
     ports:
       - "${PORT:-3000}:3000"
     environment:
-      - NODE_ENV=${NODE_ENV:-development}
+      - NODE_ENV=production
       - MONGODB_URI=${MONGODB_URI:-mongodb://admin:password123@mongodb:27017/twitterdb?authSource=admin}
       - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-this}
       - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-7d}
       - PORT=${PORT:-3000}
-      - CHOKIDAR_USEPOLLING=true
     depends_on:
       - mongodb
-    volumes:
-      - .:/app
-      - /app/node_modules
-      - /app/test  # Excluir explícitamente la carpeta test del volumen
     networks:
       - app-network
+    # Sin volúmenes en producción para mejor seguridad
 
 volumes:
   mongodb_data:

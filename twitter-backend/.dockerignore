@@ -1,0 +1,46 @@
+# Carpetas de tests
+test/
+coverage/
+
+# Dependencias
+node_modules/
+npm-debug.log*
+
+# Archivos de desarrollo
+.env
+.env.local
+.env.development
+.env.test
+
+# Archivos de build
+dist/
+build/
+
+# Archivos de Git
+.git/
+.gitignore
+
+# Documentación y archivos de desarrollo
+README.md
+*.md
+.vscode/
+.idea/
+
+# Archivos temporales
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Archivos de configuración específicos de desarrollo
+.eslintrc.js
+.prettierrc
+jest.config.js
+
+# Archivos de TypeScript compilados localmente
+*.tsbuildinfo
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose*.yml

@@ -1,0 +1,30 @@
+# Dockerfile para desarrollo
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Instalar herramientas de desarrollo
+RUN apk add --no-cache git
+
+# Crear usuario no-root
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nestjs -u 1001
+
+# Copiar archivos de configuración
+COPY .npmrc package*.json ./
+
+# Instalar todas las dependencias (incluyendo dev)
+RUN npm ci
+
+# Copiar código fuente (excluyendo test/ por .dockerignore)
+COPY . .
+
+# Cambiar ownership
+RUN chown -R nestjs:nodejs /app
+USER nestjs
+
+# Exponer puerto
+EXPOSE 3000
+
+# Comando para desarrollo
+CMD ["npm", "run", "start:dev"]
