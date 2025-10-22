@@ -43,7 +43,8 @@ export default function ProfilePage() {
   const loadUserData = async () => {
     try {
       const userData = await userService.getUserProfile(userId);
-      setUser(userData);
+      console.log('Loaded user data:', userData);
+      setUser(userData.data);
     } catch (error) {
       console.error('Error loading user:', error);
     } finally {
@@ -86,7 +87,7 @@ export default function ProfilePage() {
   };
 
   const checkFollowStatus = async () => {
-    if (!currentUser || currentUser._id === userId) return;
+    if (!currentUser || currentUser.id === userId) return;
     
     try {
       const followStatus = await userService.isFollowing(userId);
@@ -97,7 +98,7 @@ export default function ProfilePage() {
   };
 
   const handleFollowToggle = async () => {
-    if (!currentUser || currentUser._id === userId) return;
+    if (!currentUser || currentUser.id === userId) return;
     
     setLoading(prev => ({ ...prev, follow: true }));
     
@@ -163,7 +164,7 @@ export default function ProfilePage() {
               </div>
             </div>
             
-            {currentUser && currentUser._id !== userId && (
+            {currentUser && currentUser.id !== userId && (
               <button
                 onClick={handleFollowToggle}
                 disabled={loading.follow}
@@ -219,7 +220,7 @@ export default function ProfilePage() {
             </div>
           ) : tweets.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
-              {currentUser?._id === userId 
+              {currentUser?.id === userId 
                 ? 'No has escrito ningún tweet aún.'
                 : `@${user.username} no ha escrito ningún tweet aún.`
               }

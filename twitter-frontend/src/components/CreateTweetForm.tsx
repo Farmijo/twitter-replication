@@ -24,7 +24,6 @@ const CreateTweetForm: React.FC<CreateTweetFormProps> = ({ onTweetCreated }) => 
     try {
       setLoading(true);
       const newTweet = await tweetService.createTweet({ content: content.trim() });
-      console.log("Component newTweet:", newTweet);
       onTweetCreated(newTweet);
       setContent('');
     } catch (error) {

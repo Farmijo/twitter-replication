@@ -9,6 +9,7 @@ import { authService } from '@/services/auth.service';
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  isInitialized: boolean;
   login: (username: string, password: string) => Promise<void>;
   register: (username: string, email: string, password: string) => Promise<void>;
   logout: () => void;
@@ -28,22 +29,41 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    // Check if user is logged in on app start
-    const savedUser = Cookies.get(STORAGE_KEYS.USER_DATA);
-    const token = Cookies.get(STORAGE_KEYS.ACCESS_TOKEN);
-    
-    if (savedUser && token) {
+    const initializeAuth = () => {
       try {
-        setUser(JSON.parse(savedUser));
+        // Check if user is logged in on app start
+        const savedUser = Cookies.get(STORAGE_KEYS.USER_DATA);
+        const token = Cookies.get(STORAGE_KEYS.ACCESS_TOKEN);
+
+        console.log('🔍 Initializing auth context...');
+        console.log('Saved user data:', savedUser ? 'exists' : 'missing');
+        console.log('Access token:', token ? 'exists' : 'missing');
+
+        if (savedUser && token) {
+          try {
+            const parsedUser = JSON.parse(savedUser);
+            setUser(parsedUser);
+            console.log('✅ User restored from cookies:', parsedUser.username);
+          } catch (error) {
+            console.error('❌ Error parsing saved user data:', error);
+            logout();
+          }
+        } else {
+          console.log('ℹ️ No saved user data found');
+        }
       } catch (error) {
-        console.error('Error parsing saved user data:', error);
-        logout();
+        console.error('❌ Error during auth initialization:', error);
+      } finally {
+        setLoading(false);
+        setIsInitialized(true);
+        console.log('✅ Auth context initialized');
       }
-    }
-    
-    setLoading(false);
+    };
+
+    initializeAuth();
   }, []);
 
   const login = async (username: string, password: string) => {
@@ -90,6 +110,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const value: AuthContextType = {
     user,
     loading,
+    isInitialized,
     login,
     register,
     logout,

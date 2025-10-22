@@ -46,7 +46,19 @@ export class TweetsService {
     const tweet = await this.tweetModel
       .findById(id)
       .populate('userId', 'username profileImage')
-      .populate('originalTweetId')
+      .populate({
+        path: 'originalTweetId',
+        transform: function(doc) {
+          if (doc) {
+            const obj = doc.toObject();
+            obj.id = obj._id;
+            delete obj._id;
+            delete obj.__v;
+            return obj;
+          }
+          return doc;
+        }
+      })
       .exec();
     
     if (!tweet) {

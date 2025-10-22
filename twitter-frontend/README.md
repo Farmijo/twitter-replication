@@ -49,7 +49,7 @@ Frontend en Next.js para una aplicación de microblogging estilo Twitter.
 
 ## API Backend
 
-Este frontend está diseñado para consumir la API de Twitter que creaste anteriormente. Asegúrate de que el backend esté corriendo en `http://localhost:3001`.
+Este frontend está diseñado para consumir la API de Twitter que creaste anteriormente. Asegúrate de que el backend esté corriendo en `http://localhost:3000`.
 
 ### Endpoints utilizados:
 

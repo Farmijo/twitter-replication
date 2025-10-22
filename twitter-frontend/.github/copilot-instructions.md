@@ -33,7 +33,7 @@ src/
 
 ## API Endpoints
 
-El frontend consume una API REST en `http://localhost:3001`:
+El frontend consume una API REST en `http://localhost:3000`:
 
 - Autenticación: `/auth/login`, `/auth/register`, `/auth/refresh`
 - Usuarios: `/users/:id`, `/users/:id/stats`, `/users/:id/follow`

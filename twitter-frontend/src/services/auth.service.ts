@@ -6,7 +6,8 @@ import {
   RegisterCredentials,
   User,
   UserStats,
-  PaginationParams
+  PaginationParams,
+  UserResponse
 } from '@/types';
 
 export const authService = {
@@ -26,8 +27,8 @@ export const authService = {
 };
 
 export const userService = {
-  async getUserProfile(userId: string): Promise<User> {
-    return apiClient.get<User>(API_ENDPOINTS.USER_PROFILE(userId));
+  async getUserProfile(userId: string): Promise<UserResponse> {
+    return apiClient.get<UserResponse>(API_ENDPOINTS.USER_PROFILE(userId));
   },
 
   async getUserStats(userId: string): Promise<UserStats> {

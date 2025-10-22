@@ -1,5 +1,5 @@
 export interface User {
-  _id: string;
+  id: string;
   username: string;
   email?: string;
   role?: 'USER' | 'ADMIN';
@@ -8,6 +8,11 @@ export interface User {
   profileImage?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface UserResponse {
+    message: string;
+    data: User;
 }
 
 export interface Tweet {
