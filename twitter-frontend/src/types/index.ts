@@ -20,6 +20,7 @@ export interface Tweet {
   content: string;
   userId: User | string; // En GET viene populated, en POST viene como string
   likesCount: number;
+  author: {id: string; username?: string}; // Nuevo campo para el snapshot del autor
   retweetsCount: number;
   repliesCount: number;
   hashtags: string[];

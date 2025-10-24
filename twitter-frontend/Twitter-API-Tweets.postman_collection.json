@@ -1,0 +1,396 @@
+{
+	"info": {
+		"_postman_id": "tweets-collection-001",
+		"name": "Twitter API - Tweets",
+		"description": "Colección completa de endpoints para manejar tweets en la API de Twitter Clone",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"testuser\",\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/auth/register",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200 || pm.response.code === 201) {",
+									"    const responseJson = pm.response.json();",
+									"    if (responseJson.access_token) {",
+									"        pm.environment.set('ACCESS_TOKEN', responseJson.access_token);",
+									"        pm.environment.set('REFRESH_TOKEN', responseJson.refresh_token);",
+									"        pm.environment.set('USER_ID', responseJson.user._id);",
+									"        pm.environment.set('USERNAME', responseJson.user.username);",
+									"        console.log('✅ Tokens guardados en variables de entorno');",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/auth/login",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Tweets",
+			"item": [
+				{
+					"name": "Get All Tweets (Timeline)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ACCESS_TOKEN}}"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/tweets?limit=10&skip=0",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"tweets"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Número máximo de tweets a obtener"
+								},
+								{
+									"key": "skip",
+									"value": "0",
+									"description": "Número de tweets a saltar (paginación)"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Tweet",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200 || pm.response.code === 201) {",
+									"    const responseJson = pm.response.json();",
+									"    if (responseJson.data && responseJson.data.id) {",
+									"        pm.environment.set('LAST_TWEET_ID', responseJson.data.id);",
+									"        console.log('✅ Tweet creado con ID:', responseJson.data.id);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ACCESS_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"content\": \"¡Mi primer tweet desde Postman! 🚀 #testing #postman\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/tweets",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"tweets"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Tweet by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ACCESS_TOKEN}}"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/tweets/{{LAST_TWEET_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"tweets",
+								"{{LAST_TWEET_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Tweets",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ACCESS_TOKEN}}"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/tweets/user/{{USER_ID}}?limit=20&skip=0",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"tweets",
+								"user",
+								"{{USER_ID}}"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "20",
+									"description": "Número máximo de tweets a obtener"
+								},
+								{
+									"key": "skip",
+									"value": "0",
+									"description": "Número de tweets a saltar (paginación)"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Tweet",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ACCESS_TOKEN}}"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/tweets/{{LAST_TWEET_ID}}",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"tweets",
+								"{{LAST_TWEET_ID}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Tweet Examples",
+			"item": [
+				{
+					"name": "Create Tweet with Hashtags",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ACCESS_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"content\": \"Desarrollando una API de Twitter con #NestJS y #TypeScript. ¿Qué opinan? 🤔 #webdev #programming\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/tweets",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"tweets"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Long Tweet",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ACCESS_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"content\": \"Este es un tweet más largo para probar el límite de caracteres. La API debería validar que no excedamos los 280 caracteres permitidos. Si este mensaje es demasiado largo, debería dar un error de validación.\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/tweets",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"tweets"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Empty Tweet (Should Fail)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ACCESS_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"content\": \"\"\n}"
+						},
+						"url": {
+							"raw": "{{BASE_URL}}/api/tweets",
+							"host": [
+								"{{BASE_URL}}"
+							],
+							"path": [
+								"api",
+								"tweets"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Script que se ejecuta antes de cada request",
+					"console.log('🚀 Ejecutando request a:', pm.request.url);"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Script que se ejecuta después de cada response",
+					"console.log('📥 Response status:', pm.response.code);",
+					"if (pm.response.code >= 400) {",
+					"    console.log('❌ Error response:', pm.response.text());",
+					"} else {",
+					"    console.log('✅ Success response');",
+					"}"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "BASE_URL",
+			"value": "http://localhost:3000",
+			"type": "string"
+		}
+	]
+}

@@ -18,8 +18,8 @@ const TweetCard: React.FC<TweetCardProps> = ({ tweet }) => {
 
   // Handle both populated User object and string userId
   const user = typeof tweet.userId === 'string' ? null : tweet.userId;
-  const username = user?.username || 'Usuario';
-  const userId = user?.id || (typeof tweet.userId === 'string' ? tweet.userId : '');
+  const username = tweet.author?.username || (user ? user.username : 'Usuario Desconocido');
+  const userId = tweet.author?.id || (user ? user.id : '');
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">

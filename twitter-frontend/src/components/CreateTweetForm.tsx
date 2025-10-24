@@ -14,6 +14,8 @@ const CreateTweetForm: React.FC<CreateTweetFormProps> = ({ onTweetCreated }) => 
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
 
+
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
