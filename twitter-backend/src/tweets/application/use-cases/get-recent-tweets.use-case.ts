@@ -1,18 +1,18 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { TweetQueryService } from '../services/tweet-query.service';
 import { TWEET_TOKENS } from '../tokens';
 
 @Injectable()
-export class GetRepliesUseCase {
+export class GetRecentTweetsUseCase {
   constructor(
     @Inject(TWEET_TOKENS.TweetQueryService)
     private readonly tweetQueryService: TweetQueryService,
   ) {}
 
-  async execute(tweetId: string) {
-    const replies = await this.tweetQueryService.getRepliesTo(tweetId);
+  async execute(limit = 20, skip = 0) {
+    const tweets = await this.tweetQueryService.getRecentTweets(limit, skip);
 
-    return replies.map(tweet => ({
+    return tweets.map(tweet => ({
       id: tweet.getId().getValue(),
       content: tweet.getContent(),
       authorId: tweet.getAuthorId().getValue(),

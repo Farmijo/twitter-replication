@@ -37,6 +37,13 @@ export class TweetQueryService {
   }
 
   /**
+   * Obtener tweets recientes (timeline global básica)
+   */
+  async getRecentTweets(limit = 20, skip = 0): Promise<Tweet[]> {
+    return this.tweetRepository.findRecent(limit, skip);
+  }
+
+  /**
    * Obtener respuestas a un tweet específico
    */
   async getRepliesTo(tweetId: string): Promise<Tweet[]> {

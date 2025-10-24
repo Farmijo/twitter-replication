@@ -11,7 +11,7 @@ export class GetTweetByIdUseCase {
 
   async execute(id: string) {
     const tweet = await this.tweetQueryService.getTweetById(id);
-    
+    console.log(tweet);
     if (!tweet) {
       throw new NotFoundException(`Tweet with id ${id} not found`);
     }
@@ -20,6 +20,7 @@ export class GetTweetByIdUseCase {
       id: tweet.getId().getValue(),
       content: tweet.getContent(),
       authorId: tweet.getAuthorId().getValue(),
+      author: tweet.getAuthorSnapshot(),
       type: tweet.getType(),
       likesCount: tweet.getLikesCount(),
       retweetsCount: tweet.getRetweetsCount(),

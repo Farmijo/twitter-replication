@@ -4,6 +4,13 @@ import { UserId } from '../value-objects/user-id.vo';
 import { Hashtag } from '../value-objects/hashtag.vo';
 import { BusinessRuleException } from '../../../shared/domain/exceptions/domain.exception';
 
+export interface TweetAuthorSnapshot {
+  id: string;
+  username?: string;
+  displayName?: string;
+  profileImage?: string;
+}
+
 export enum TweetType {
   ORIGINAL = 'original',
   RETWEET = 'retweet',
@@ -16,6 +23,7 @@ export class Tweet {
   private repliesCount: number;
   private hashtags: Hashtag[];
   private mentions: string[];
+  private readonly authorProfile: TweetAuthorSnapshot;
 
   constructor(
     private readonly id: TweetId,
@@ -27,13 +35,21 @@ export class Tweet {
     private readonly createdAt: Date = new Date(),
     likesCount: number = 0,
     retweetsCount: number = 0,
-    repliesCount: number = 0
+    repliesCount: number = 0,
+    authorProfile: TweetAuthorSnapshot | null = null
   ) {
     this.likesCount = likesCount;
     this.retweetsCount = retweetsCount;
     this.repliesCount = repliesCount;
     this.hashtags = this.extractHashtags();
     this.mentions = this.extractMentions();
+    const resolvedProfile = authorProfile ?? { id: authorId.getValue() };
+    this.authorProfile = {
+      id: resolvedProfile.id ?? authorId.getValue(),
+      username: resolvedProfile.username,
+      displayName: resolvedProfile.displayName,
+      profileImage: resolvedProfile.profileImage,
+    };
     this.validateBusinessRules();
   }
 
@@ -84,6 +100,10 @@ export class Tweet {
 
   public getMentions(): string[] {
     return [...this.mentions];
+  }
+
+  public getAuthorSnapshot(): TweetAuthorSnapshot {
+    return { ...this.authorProfile };
   }
 
   // Business logic methods
@@ -227,4 +247,5 @@ export class Tweet {
   ): Tweet {
     return new Tweet(id, content, authorId, TweetType.REPLY, null, parentTweetId);
   }
+
 }

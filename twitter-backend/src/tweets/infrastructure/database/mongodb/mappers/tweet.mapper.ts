@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import { Tweet, TweetType } from '../../../../domain/entities/tweet.entity';
+import { Tweet, TweetType, TweetAuthorSnapshot } from '../../../../domain/entities/tweet.entity';
 import { TweetId } from '../../../../domain/value-objects/tweet-id.vo';
 import { TweetContent } from '../../../../domain/value-objects/tweet-content.vo';
 import { UserId } from '../../../../domain/value-objects/user-id.vo';
@@ -34,31 +34,50 @@ export class TweetMapper {
   /**
    * Converts a MongoDB document to a domain Tweet entity
    */
-  static toDomain(persistenceModel: TweetDocument): Tweet {
-    const id = TweetId.fromString(persistenceModel._id.toString());
+  static toDomain(persistenceModel: any): Tweet {
+    const id = TweetId.fromString(persistenceModel._id?.toString() || persistenceModel.id);
     const content = new TweetContent(persistenceModel.content);
-    const authorId = UserId.fromString(persistenceModel.authorId.toString());
+    const rawAuthor = persistenceModel.authorId ?? persistenceModel.userId;
+    if (!rawAuthor) {
+      throw new Error('Tweet persistence model is missing author reference');
+    }
+
+  const authorIdValue = this.extractIdValue(rawAuthor);
+  const userId = UserId.fromString(authorIdValue);
+  const authorSnapshot = this.buildAuthorSnapshot(rawAuthor, authorIdValue);
+    
     const type = this.mapModelTypeToDomain(persistenceModel.type);
     
-    const originalTweetId = persistenceModel.originalTweetId 
-      ? TweetId.fromString(persistenceModel.originalTweetId.toString())
-      : null;
+    // Handle populated originalTweetId
+    let originalTweetId = null;
+    if (persistenceModel.originalTweetId) {
+      const originalTweetIdValue = typeof persistenceModel.originalTweetId === 'object' && persistenceModel.originalTweetId !== null
+        ? (persistenceModel.originalTweetId._id?.toString() || persistenceModel.originalTweetId.id)
+        : persistenceModel.originalTweetId.toString();
+      originalTweetId = TweetId.fromString(originalTweetIdValue);
+    }
     
-    const parentTweetId = persistenceModel.parentTweetId 
-      ? TweetId.fromString(persistenceModel.parentTweetId.toString())
-      : null;
+    // Handle populated parentTweetId
+    let parentTweetId = null;
+    if (persistenceModel.parentTweetId) {
+      const parentTweetIdValue = typeof persistenceModel.parentTweetId === 'object' && persistenceModel.parentTweetId !== null
+        ? (persistenceModel.parentTweetId._id?.toString() || persistenceModel.parentTweetId.id)
+        : persistenceModel.parentTweetId.toString();
+      parentTweetId = TweetId.fromString(parentTweetIdValue);
+    }
 
     return new Tweet(
       id,
       content,
-      authorId,
+      userId,
       type,
       originalTweetId,
       parentTweetId,
       persistenceModel.createdAt,
       persistenceModel.likesCount || 0,
       persistenceModel.retweetsCount || 0,
-      persistenceModel.repliesCount || 0
+      persistenceModel.repliesCount || 0,
+      authorSnapshot
     );
   }
 
@@ -129,5 +148,67 @@ export class TweetMapper {
    */
   static toObjectIdArray(ids: string[]): Types.ObjectId[] {
     return ids.map(id => new Types.ObjectId(id));
+  }
+
+  private static extractIdValue(rawId: any): string {
+    if (typeof rawId === 'string') {
+      return rawId;
+    }
+
+    if (rawId instanceof Types.ObjectId) {
+      return rawId.toString();
+    }
+
+    if (typeof rawId === 'object' && rawId !== null) {
+      if (rawId._id) {
+        return rawId._id.toString();
+      }
+
+      if (rawId.id) {
+        return rawId.id.toString();
+      }
+    }
+
+    if (typeof rawId?.toString === 'function') {
+      return rawId.toString();
+    }
+
+    throw new Error('Unable to extract identifier value from persistence model');
+  }
+
+  private static buildAuthorSnapshot(rawAuthor: any, fallbackId: string): TweetAuthorSnapshot {
+    if (!rawAuthor) {
+      return { id: fallbackId };
+    }
+
+    if (typeof rawAuthor === 'string' || rawAuthor instanceof Types.ObjectId) {
+      return { id: fallbackId };
+    }
+
+    if (typeof rawAuthor === 'object' && rawAuthor !== null) {
+      if (typeof rawAuthor.toObject === 'function') {
+        return this.buildAuthorSnapshot(rawAuthor.toObject(), fallbackId);
+      }
+
+      const snapshot: TweetAuthorSnapshot = {
+        id: rawAuthor._id?.toString?.() ?? rawAuthor.id?.toString?.() ?? fallbackId,
+      };
+
+      if (typeof rawAuthor.username === 'string') {
+        snapshot.username = rawAuthor.username;
+      }
+
+      if (typeof rawAuthor.displayName === 'string') {
+        snapshot.displayName = rawAuthor.displayName;
+      }
+
+      if (typeof rawAuthor.profileImage === 'string') {
+        snapshot.profileImage = rawAuthor.profileImage;
+      }
+
+      return snapshot;
+    }
+
+    return { id: fallbackId };
   }
 }

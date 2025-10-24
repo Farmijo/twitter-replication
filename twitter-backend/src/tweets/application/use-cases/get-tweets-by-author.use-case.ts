@@ -11,11 +11,12 @@ export class GetTweetsByAuthorUseCase {
 
   async execute(authorId: string) {
     const tweets = await this.tweetQueryService.getTweetsByAuthor(authorId);
-
+    
     return tweets.map(tweet => ({
       id: tweet.getId().getValue(),
       content: tweet.getContent(),
       authorId: tweet.getAuthorId().getValue(),
+      author: tweet.getAuthorSnapshot(),
       type: tweet.getType(),
       likesCount: tweet.getLikesCount(),
       retweetsCount: tweet.getRetweetsCount(),

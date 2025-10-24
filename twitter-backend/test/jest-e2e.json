@@ -6,19 +6,8 @@
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },
-  "moduleNameMapping": {
+  "moduleNameMapper": {
     "^src/(.*)$": "<rootDir>/../src/$1"
   },
-  "setupFilesAfterEnv": ["<rootDir>/setup.ts"],
-  "testTimeout": 60000,
-  "maxWorkers": 1,
-  "forceExit": true,
-  "detectOpenHandles": true,
-  "verbose": true,
-  "collectCoverageFrom": [
-    "../src/**/*.ts",
-    "!../src/**/*.spec.ts",
-    "!../src/**/*.interface.ts",
-    "!../src/main.ts"
-  ]
+  "testTimeout": 60000
 }

@@ -15,4 +15,5 @@ export abstract class TweetRepository {
   abstract delete(id: TweetId): Promise<void>;
   abstract findByAuthor(authorId: UserId): Promise<Tweet[]>;
   abstract findRepliesTo(tweetId: TweetId): Promise<Tweet[]>;
+  abstract findRecent(limit: number, skip?: number): Promise<Tweet[]>;
 }
