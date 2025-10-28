@@ -18,19 +18,19 @@ export class MongoTweetRepository implements TweetRepository {
   async save(tweet: Tweet): Promise<Tweet> {
     const tweetDoc = TweetMapper.toPersistence(tweet);
     const savedDoc = await this.tweetModel.create(tweetDoc);
-    const populatedDoc = await savedDoc.populate('authorId', 'username displayName profileImage');
+    const populatedDoc = await savedDoc.populate('authorId', 'username profileImage');
     return TweetMapper.toDomain(populatedDoc);
   }
 
   async findById(id: TweetId): Promise<Tweet | null> {
     const doc = await this.tweetModel
       .findById(id.getValue())
-      .populate('authorId', 'username displayName profileImage')
+      .populate('authorId', 'username profileImage')
       .populate({
         path: 'originalTweetId',
         populate: {
           path: 'authorId',
-          select: 'username displayName profileImage'
+          select: 'username profileImage'
         }
       })
       .exec();
@@ -42,7 +42,7 @@ export class MongoTweetRepository implements TweetRepository {
     const idStrings = ids.map(id => id.getValue());
     const docs = await this.tweetModel
   .find({ _id: { $in: idStrings } })
-  .populate('authorId', 'username displayName profileImage')
+  .populate('authorId', 'username profileImage')
       .exec();
     
     return docs.map(doc => TweetMapper.toDomain(doc));
@@ -52,7 +52,7 @@ export class MongoTweetRepository implements TweetRepository {
     const tweetDoc = TweetMapper.toPersistence(tweet);
     const updatedDoc = await this.tweetModel
   .findByIdAndUpdate(tweet.getId().getValue(), tweetDoc, { new: true })
-  .populate('authorId', 'username displayName profileImage')
+  .populate('authorId', 'username profileImage')
       .exec();
     
     if (!updatedDoc) {
@@ -67,10 +67,9 @@ export class MongoTweetRepository implements TweetRepository {
   }
 
   async findByAuthor(authorId: AuthorId): Promise<Tweet[]> {
-    const filters = this.buildAuthorFilters(authorId);
     const docs = await this.tweetModel
-      .find(filters.length ? { $or: filters } : { authorId: authorId.getValue() })
-      .populate('authorId', 'username displayName profileImage')
+      .find({ authorId: new Types.ObjectId(authorId.getValue()) })
+      .populate('authorId', 'username profileImage')
       .sort({ createdAt: -1 })
       .exec();
 
