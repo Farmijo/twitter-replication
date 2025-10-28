@@ -2,8 +2,6 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { UserModel } from '../../../../../users/infrastructure/database/mongodb/models/user.model';
 
-export type TweetDocument = TweetModel & Document;
-
 export enum TweetTypeModel {
   ORIGINAL = 'original',
   RETWEET = 'retweet',
@@ -65,6 +63,12 @@ export class TweetModel {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export type TweetModelAttributes = Omit<TweetModel, 'createdAt' | 'updatedAt'> & {
+  _id: Types.ObjectId;
+  createdAt: Date;
+  updatedAt?: Date;
+};
 
 export const TweetSchema = SchemaFactory.createForClass(TweetModel);
 

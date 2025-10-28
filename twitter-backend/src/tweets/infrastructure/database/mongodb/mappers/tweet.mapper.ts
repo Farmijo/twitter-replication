@@ -3,14 +3,10 @@ import { Tweet, TweetType, TweetAuthorSnapshot } from '../../../../domain/entiti
 import { TweetId } from '../../../../domain/value-objects/tweet-id.vo';
 import { TweetContent } from '../../../../domain/value-objects/tweet-content.vo';
 import { AuthorId } from '../../../../domain/value-objects/author-id.vo';
-import { TweetDocument, TweetModel, TweetTypeModel } from '../models/tweet.model';
+import { TweetModelAttributes, TweetTypeModel } from '../models/tweet.model';
 
 export class TweetMapper {
-  /**
-   * Converts a domain Tweet entity to a MongoDB document
-   */
-  // How to avoid this any?
-  static toPersistence(domainTweet: Tweet): any {
+  static toPersistence(domainTweet: Tweet): TweetModelAttributes {
     return {
       _id: new Types.ObjectId(domainTweet.getId().getValue()),
       content: domainTweet.getContent(),
@@ -35,10 +31,10 @@ export class TweetMapper {
   /**
    * Converts a MongoDB document to a domain Tweet entity
    */
-  static toDomain(persistenceModel: any): Tweet {
-    const id = TweetId.fromString(persistenceModel._id?.toString() || persistenceModel.id);
+  static toDomain(persistenceModel: TweetModelAttributes): Tweet {
+    const id = TweetId.fromString(persistenceModel._id?.toString());
     const content = new TweetContent(persistenceModel.content);
-    const rawAuthor = persistenceModel.authorId ?? persistenceModel.userId;
+    const rawAuthor = persistenceModel.authorId;
     if (!rawAuthor) {
       throw new Error('Tweet persistence model is missing author reference');
     }
@@ -55,7 +51,7 @@ export class TweetMapper {
       const originalTweetIdValue = typeof persistenceModel.originalTweetId === 'object' && persistenceModel.originalTweetId !== null
         ? (persistenceModel.originalTweetId._id?.toString() || persistenceModel.originalTweetId.id)
         : persistenceModel.originalTweetId.toString();
-      originalTweetId = TweetId.fromString(originalTweetIdValue);
+      originalTweetId = TweetId.fromString(originalTweetIdValue.toString());
     }
     
     // Handle populated parentTweetId
@@ -64,7 +60,7 @@ export class TweetMapper {
       const parentTweetIdValue = typeof persistenceModel.parentTweetId === 'object' && persistenceModel.parentTweetId !== null
         ? (persistenceModel.parentTweetId._id?.toString() || persistenceModel.parentTweetId.id)
         : persistenceModel.parentTweetId.toString();
-      parentTweetId = TweetId.fromString(parentTweetIdValue);
+      parentTweetId = TweetId.fromString(parentTweetIdValue.toString());
     }
 
     return new Tweet(
@@ -85,7 +81,7 @@ export class TweetMapper {
   /**
    * Converts multiple MongoDB documents to domain Tweet entities
    */
-  static toDomainArray(persistenceModels: TweetDocument[]): Tweet[] {
+  static toDomainArray(persistenceModels: TweetModelAttributes[]): Tweet[] {
     return persistenceModels.map(model => this.toDomain(model));
   }
 
@@ -125,7 +121,7 @@ export class TweetMapper {
    * Updates a MongoDB document with changes from a domain entity
    */
   static updatePersistenceFromDomain(
-    persistenceModel: TweetDocument, 
+    persistenceModel: TweetModelAttributes, 
     domainTweet: Tweet
   ): void {
     persistenceModel.content = domainTweet.getContent();
