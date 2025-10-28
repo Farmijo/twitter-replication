@@ -80,7 +80,7 @@ export class MongoTweetRepository implements TweetRepository {
 
     const docs = await this.tweetModel
     .find({ parentTweetId: new Types.ObjectId(tweetId.getValue()) })
-    .populate('authorId', 'username displayName profileImage')
+    .populate('authorId', 'username profileImage')
         .sort({ createdAt: 1 })
         .exec();
 
@@ -103,44 +103,4 @@ export class MongoTweetRepository implements TweetRepository {
     return docs.map(doc => TweetMapper.toDomain(doc));
   }
 
-  private buildAuthorFilters(authorId: AuthorId): Record<string, unknown>[] {
-    const rawValue = authorId.getValue()?.trim();
-    if (!rawValue) {
-      return [];
-    }
-
-    const variants = new Set<string>();
-    variants.add(rawValue);
-
-    const extractedHex = this.extractHexObjectId(rawValue);
-    if (extractedHex) {
-      variants.add(extractedHex);
-    }
-
-    const filters: Record<string, unknown>[] = [];
-
-    for (const value of variants) {
-      filters.push({ authorId: value });
-      if (Types.ObjectId.isValid(value)) {
-        filters.push({ authorId: new Types.ObjectId(value) });
-      }
-      // Compatibilidad con documentos legacy
-      filters.push({ userId: value });
-      if (Types.ObjectId.isValid(value)) {
-        filters.push({ userId: new Types.ObjectId(value) });
-      }
-    }
-
-    return filters;
-  }
-
-  private extractHexObjectId(value: string): string | null {
-    const objectIdMatch = value.match(/ObjectId\("([0-9a-fA-F]{24})"\)/);
-    if (objectIdMatch && objectIdMatch[1]) {
-      return objectIdMatch[1];
-    }
-
-    const hexMatch = value.match(/([0-9a-fA-F]{24})/);
-    return hexMatch ? hexMatch[1] : null;
-  }
 }
