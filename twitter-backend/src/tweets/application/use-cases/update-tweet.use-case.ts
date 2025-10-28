@@ -2,7 +2,7 @@ import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { Tweet } from '../../domain/entities/tweet.entity';
 import { TweetRepository } from '../../domain/repositories/tweet.repository';
 import { TweetId } from '../../domain/value-objects/tweet-id.vo';
-import { UserId } from '../../domain/value-objects/user-id.vo';
+import { AuthorId } from '../../domain/value-objects/author-id.vo';
 import { TWEET_TOKENS } from '../tokens';
 
 export interface UpdateTweetCommand {
@@ -20,7 +20,7 @@ export class UpdateTweetUseCase {
 
   async execute(command: UpdateTweetCommand): Promise<Tweet> {
     const tweetId = new TweetId(command.tweetId);
-    const userId = new UserId(command.userId);
+    const authorId = AuthorId.fromString(command.userId);
 
     // Obtener el tweet
     const tweet = await this.tweetRepository.findById(tweetId);
@@ -30,7 +30,7 @@ export class UpdateTweetUseCase {
     }
 
     // Verificar que el usuario puede editar el tweet
-    if (!tweet.canBeEditedBy(userId)) {
+    if (!tweet.canBeEditedBy(authorId)) {
       throw new Error('You can only edit your own tweets and only within 5 minutes of creation');
     }
 

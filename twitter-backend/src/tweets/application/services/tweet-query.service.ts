@@ -2,7 +2,7 @@ import { Injectable, Inject } from '@nestjs/common';
 import { Tweet } from '../../domain/entities/tweet.entity';
 import { TweetRepository } from '../../domain/repositories/tweet.repository';
 import { TweetId } from '../../domain/value-objects/tweet-id.vo';
-import { UserId } from '../../domain/value-objects/user-id.vo';
+import { AuthorId } from '../../domain/value-objects/author-id.vo';
 import { TWEET_TOKENS } from '../tokens';
 
 @Injectable()
@@ -32,8 +32,8 @@ export class TweetQueryService {
    * Obtener tweets de un usuario específico
    */
   async getTweetsByAuthor(authorId: string): Promise<Tweet[]> {
-    const userId = new UserId(authorId);
-    return this.tweetRepository.findByAuthor(userId);
+    const author = AuthorId.fromString(authorId);
+    return this.tweetRepository.findByAuthor(author);
   }
 
   /**

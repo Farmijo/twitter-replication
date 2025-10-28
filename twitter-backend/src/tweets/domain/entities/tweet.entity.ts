@@ -1,6 +1,6 @@
 import { TweetId } from '../value-objects/tweet-id.vo';
 import { TweetContent } from '../value-objects/tweet-content.vo';
-import { UserId } from '../value-objects/user-id.vo';
+import { AuthorId } from '../value-objects/author-id.vo';
 import { Hashtag } from '../value-objects/hashtag.vo';
 import { BusinessRuleException } from '../../../shared/domain/exceptions/domain.exception';
 
@@ -26,9 +26,9 @@ export class Tweet {
   private readonly authorProfile: TweetAuthorSnapshot;
 
   constructor(
-    private readonly id: TweetId,
-    private content: TweetContent,
-    private readonly authorId: UserId,
+  private readonly id: TweetId,
+  private content: TweetContent,
+  private readonly authorId: AuthorId,
     private readonly type: TweetType = TweetType.ORIGINAL,
     private readonly originalTweetId: TweetId | null = null,
     private readonly parentTweetId: TweetId | null = null,
@@ -62,7 +62,7 @@ export class Tweet {
     return this.content.getValue();
   }
 
-  public getAuthorId(): UserId {
+  public getAuthorId(): AuthorId {
     return this.authorId;
   }
 
@@ -151,20 +151,20 @@ export class Tweet {
     }
   }
 
-  public canBeEditedBy(userId: UserId): boolean {
-    return this.isOwnedBy(userId) && this.canBeEdited();
+  public canBeEditedBy(authorId: AuthorId): boolean {
+    return this.isOwnedBy(authorId) && this.canBeEdited();
   }
 
-  public canBeDeletedBy(userId: UserId): boolean {
-    return this.isOwnedBy(userId);
+  public canBeDeletedBy(authorId: AuthorId): boolean {
+    return this.isOwnedBy(authorId);
   }
 
-  public canBeRetweetedBy(userId: UserId): boolean {
-    return !this.isOwnedBy(userId);
+  public canBeRetweetedBy(authorId: AuthorId): boolean {
+    return !this.isOwnedBy(authorId);
   }
 
-  public isOwnedBy(userId: UserId): boolean {
-    return this.authorId.equals(userId);
+  public isOwnedBy(authorId: AuthorId): boolean {
+    return this.authorId.equals(authorId);
   }
 
   public isRetweet(): boolean {
@@ -225,7 +225,7 @@ export class Tweet {
   public static createOriginalTweet(
     id: TweetId,
     content: TweetContent,
-    authorId: UserId
+    authorId: AuthorId
   ): Tweet {
     return new Tweet(id, content, authorId, TweetType.ORIGINAL);
   }
@@ -233,7 +233,7 @@ export class Tweet {
   public static createRetweet(
     id: TweetId,
     content: TweetContent,
-    authorId: UserId,
+    authorId: AuthorId,
     originalTweetId: TweetId
   ): Tweet {
     return new Tweet(id, content, authorId, TweetType.RETWEET, originalTweetId);
@@ -242,7 +242,7 @@ export class Tweet {
   public static createReply(
     id: TweetId,
     content: TweetContent,
-    authorId: UserId,
+    authorId: AuthorId,
     parentTweetId: TweetId
   ): Tweet {
     return new Tweet(id, content, authorId, TweetType.REPLY, null, parentTweetId);

@@ -2,13 +2,14 @@ import { Types } from 'mongoose';
 import { Tweet, TweetType, TweetAuthorSnapshot } from '../../../../domain/entities/tweet.entity';
 import { TweetId } from '../../../../domain/value-objects/tweet-id.vo';
 import { TweetContent } from '../../../../domain/value-objects/tweet-content.vo';
-import { UserId } from '../../../../domain/value-objects/user-id.vo';
+import { AuthorId } from '../../../../domain/value-objects/author-id.vo';
 import { TweetDocument, TweetModel, TweetTypeModel } from '../models/tweet.model';
 
 export class TweetMapper {
   /**
    * Converts a domain Tweet entity to a MongoDB document
    */
+  // How to avoid this any?
   static toPersistence(domainTweet: Tweet): any {
     return {
       _id: new Types.ObjectId(domainTweet.getId().getValue()),
@@ -43,7 +44,7 @@ export class TweetMapper {
     }
 
   const authorIdValue = this.extractIdValue(rawAuthor);
-  const userId = UserId.fromString(authorIdValue);
+  const authorId = AuthorId.fromString(authorIdValue);
   const authorSnapshot = this.buildAuthorSnapshot(rawAuthor, authorIdValue);
     
     const type = this.mapModelTypeToDomain(persistenceModel.type);
@@ -69,7 +70,7 @@ export class TweetMapper {
     return new Tweet(
       id,
       content,
-      userId,
+  authorId,
       type,
       originalTweetId,
       parentTweetId,

@@ -1,6 +1,6 @@
 import { Tweet } from '../entities/tweet.entity';
 import { TweetId } from '../value-objects/tweet-id.vo';
-import { UserId } from '../value-objects/user-id.vo';
+import { AuthorId } from '../value-objects/author-id.vo';
 
 /**
  * Repository interface following hexagonal architecture principles.
@@ -13,7 +13,7 @@ export abstract class TweetRepository {
   abstract findByIds(ids: TweetId[]): Promise<Tweet[]>;
   abstract update(tweet: Tweet): Promise<Tweet>;
   abstract delete(id: TweetId): Promise<void>;
-  abstract findByAuthor(authorId: UserId): Promise<Tweet[]>;
+  abstract findByAuthor(authorId: AuthorId): Promise<Tweet[]>;
   abstract findRepliesTo(tweetId: TweetId): Promise<Tweet[]>;
   abstract findRecent(limit: number, skip?: number): Promise<Tweet[]>;
 }

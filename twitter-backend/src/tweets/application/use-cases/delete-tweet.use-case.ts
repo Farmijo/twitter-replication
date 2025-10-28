@@ -1,7 +1,7 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { TweetRepository } from '../../domain/repositories/tweet.repository';
 import { TweetId } from '../../domain/value-objects/tweet-id.vo';
-import { UserId } from '../../domain/value-objects/user-id.vo';
+import { AuthorId } from '../../domain/value-objects/author-id.vo';
 import { TWEET_TOKENS } from '../tokens';
 
 export interface DeleteTweetCommand {
@@ -17,8 +17,8 @@ export class DeleteTweetUseCase {
   ) {}
 
   async execute(command: DeleteTweetCommand): Promise<void> {
-    const tweetId = new TweetId(command.tweetId);
-    const userId = new UserId(command.userId);
+  const tweetId = new TweetId(command.tweetId);
+  const authorId = AuthorId.fromString(command.userId);
 
     // Obtener el tweet
     const tweet = await this.tweetRepository.findById(tweetId);
@@ -28,7 +28,7 @@ export class DeleteTweetUseCase {
     }
 
     // Verificar que el usuario puede eliminar el tweet
-    if (!tweet.canBeDeletedBy(userId)) {
+  if (!tweet.canBeDeletedBy(authorId)) {
       throw new Error('You can only delete your own tweets');
     }
 

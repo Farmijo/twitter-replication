@@ -3,7 +3,7 @@ import { Tweet, TweetType } from '../../domain/entities/tweet.entity';
 import { TweetRepository } from '../../domain/repositories/tweet.repository';
 import { TweetId } from '../../domain/value-objects/tweet-id.vo';
 import { TweetContent } from '../../domain/value-objects/tweet-content.vo';
-import { UserId } from '../../domain/value-objects/user-id.vo';
+import { AuthorId } from '../../domain/value-objects/author-id.vo';
 import { TWEET_TOKENS } from '../tokens';
 
 export interface CreateTweetCommand {
@@ -25,8 +25,8 @@ export class CreateTweetUseCase {
     // Crear value objects
     const tweetId = TweetId.generate();
     const content = new TweetContent(command.content);
-    // Estamos en contexto de tweet, asi que a UserId le cambiaremos el nombre a authorId
-    const authorId = new UserId(command.authorId);
+  // El identificador del autor se modela con AuthorId para mantener el contexto del agregado
+  const authorId = AuthorId.fromString(command.authorId);
     
     // Crear value objects opcionales
     const originalTweetId = command.originalTweetId 

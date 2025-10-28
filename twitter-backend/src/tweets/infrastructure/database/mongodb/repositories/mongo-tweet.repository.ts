@@ -4,7 +4,7 @@ import { Model, Types } from 'mongoose';
 import { Tweet } from '../../../../domain/entities/tweet.entity';
 import { TweetRepository } from '../../../../domain/repositories/tweet.repository';
 import { TweetId } from '../../../../domain/value-objects/tweet-id.vo';
-import { UserId } from '../../../../domain/value-objects/user-id.vo';
+import { AuthorId } from '../../../../domain/value-objects/author-id.vo';
 import { TweetModel, TweetTypeModel } from '../models/tweet.model';
 import { TweetMapper } from '../mappers/tweet.mapper';
 
@@ -66,7 +66,7 @@ export class MongoTweetRepository implements TweetRepository {
     await this.tweetModel.findByIdAndDelete(id.getValue()).exec();
   }
 
-  async findByAuthor(authorId: UserId): Promise<Tweet[]> {
+  async findByAuthor(authorId: AuthorId): Promise<Tweet[]> {
     const filters = this.buildAuthorFilters(authorId);
     const docs = await this.tweetModel
       .find(filters.length ? { $or: filters } : { authorId: authorId.getValue() })
@@ -104,7 +104,7 @@ export class MongoTweetRepository implements TweetRepository {
     return docs.map(doc => TweetMapper.toDomain(doc));
   }
 
-  private buildAuthorFilters(authorId: UserId): Record<string, unknown>[] {
+  private buildAuthorFilters(authorId: AuthorId): Record<string, unknown>[] {
     const rawValue = authorId.getValue()?.trim();
     if (!rawValue) {
       return [];
