@@ -11,7 +11,6 @@ export class GetTweetByIdUseCase {
 
   async execute(id: string) {
     const tweet = await this.tweetQueryService.getTweetById(id);
-    console.log(tweet);
     if (!tweet) {
       throw new NotFoundException(`Tweet with id ${id} not found`);
     }

@@ -5,59 +5,15 @@ import { Tweet } from '../../../../domain/entities/tweet.entity';
 import { TweetRepository } from '../../../../domain/repositories/tweet.repository';
 import { TweetId } from '../../../../domain/value-objects/tweet-id.vo';
 import { UserId } from '../../../../domain/value-objects/user-id.vo';
-import { TweetModel } from '../models/tweet.model';
+import { TweetModel, TweetTypeModel } from '../models/tweet.model';
 import { TweetMapper } from '../mappers/tweet.mapper';
 
 @Injectable()
 export class MongoTweetRepository implements TweetRepository {
   constructor(
-    @InjectModel('Tweet')
+    @InjectModel(TweetModel.name)
     private readonly tweetModel: Model<TweetModel>,
   ) {}
-
-  /**
-   * Transforma los campos populate para usar 'id' en lugar de '_id'
-   */
-  private transformPopulatedFields(doc: any): any {
-    const obj = doc.toObject();
-    
-    // Transformar el documento principal
-    if (obj._id) {
-      obj.id = obj._id;
-      delete obj._id;
-      delete obj.__v;
-    }
-    
-    // Transformar authorId si está populated
-    if (obj.authorId && typeof obj.authorId === 'object' && obj.authorId._id) {
-      obj.authorId.id = obj.authorId._id;
-      delete obj.authorId._id;
-      delete obj.authorId.__v;
-    }
-    
-    // Transformar originalTweetId si está populated
-    if (obj.originalTweetId && typeof obj.originalTweetId === 'object' && obj.originalTweetId._id) {
-      obj.originalTweetId.id = obj.originalTweetId._id;
-      delete obj.originalTweetId._id;
-      delete obj.originalTweetId.__v;
-      
-      // Transformar también el authorId del originalTweetId si está populated
-      if (obj.originalTweetId.authorId && typeof obj.originalTweetId.authorId === 'object' && obj.originalTweetId.authorId._id) {
-        obj.originalTweetId.authorId.id = obj.originalTweetId.authorId._id;
-        delete obj.originalTweetId.authorId._id;
-        delete obj.originalTweetId.authorId.__v;
-      }
-    }
-
-    // Transformar replyTo si está populated (para replies)
-    if (obj.replyTo && typeof obj.replyTo === 'object' && obj.replyTo._id) {
-      obj.replyTo.id = obj.replyTo._id;
-      delete obj.replyTo._id;
-      delete obj.replyTo.__v;
-    }
-    
-    return obj;
-  }
 
   async save(tweet: Tweet): Promise<Tweet> {
     const tweetDoc = TweetMapper.toPersistence(tweet);
@@ -85,7 +41,7 @@ export class MongoTweetRepository implements TweetRepository {
   async findByIds(ids: TweetId[]): Promise<Tweet[]> {
     const idStrings = ids.map(id => id.getValue());
     const docs = await this.tweetModel
-      .find({ _id: { $in: idStrings } })
+  .find({ _id: { $in: idStrings } })
   .populate('authorId', 'username displayName profileImage')
       .exec();
     
@@ -95,7 +51,7 @@ export class MongoTweetRepository implements TweetRepository {
   async update(tweet: Tweet): Promise<Tweet> {
     const tweetDoc = TweetMapper.toPersistence(tweet);
     const updatedDoc = await this.tweetModel
-      .findByIdAndUpdate(tweet.getId().getValue(), tweetDoc, { new: true })
+  .findByIdAndUpdate(tweet.getId().getValue(), tweetDoc, { new: true })
   .populate('authorId', 'username displayName profileImage')
       .exec();
     
@@ -122,11 +78,13 @@ export class MongoTweetRepository implements TweetRepository {
   }
 
   async findRepliesTo(tweetId: TweetId): Promise<Tweet[]> {
+
     const docs = await this.tweetModel
-      .find({ parentTweetId: tweetId.getValue() })
-  .populate('authorId', 'username displayName profileImage')
-      .sort({ createdAt: 1 })
-      .exec();
+    .find({ parentTweetId: new Types.ObjectId(tweetId.getValue()) })
+    .populate('authorId', 'username displayName profileImage')
+        .sort({ createdAt: 1 })
+        .exec();
+
     
     return docs.map(doc => TweetMapper.toDomain(doc));
   }

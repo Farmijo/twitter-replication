@@ -459,19 +459,6 @@ This basic API is ready to evolve into an enterprise-level system. Here's the te
   - Engagement metrics and cohort analysis
   - Revenue optimization (ads, subscriptions)
 
-### **🔧 Technical KPIs to Track**
-
-| Metric | Current Baseline | Staff Engineer Target |
-|---------|-----------------|----------------------|
-| Timeline Load Time | ~200ms | <50ms p95 |
-| Tweet Creation | ~100ms | <30ms p95 |
-| Search Queries | N/A | <100ms p95 |
-| System Availability | 95% | 99.95% |
-| Cache Hit Ratio | 0% | >90% |
-| Deploy Frequency | Manual | Multiple/day |
-| Error Rate | Unknown | <0.1% |
-| Cost per User | N/A | Optimize monthly |
-
 ### **🚀 Target Final Architecture**
 
 ```
@@ -509,6 +496,11 @@ This basic API is ready to evolve into an enterprise-level system. Here's the te
 - [ ] Redis caching
 - [ ] Refresh tokens
 - [ ] OAuth (Google, GitHub)
+
+## Refactors needed.
+
+- [ ] Do not rely on MongoDb Models to deal with key namings (delete transformations). Repository implementations should adapt to it.
+- [ ] Apply payload validations on controllers to avoid having inner issues related to malformed payloads.
 
 ##  License
 Use this however you like

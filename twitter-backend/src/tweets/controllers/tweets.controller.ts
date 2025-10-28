@@ -44,10 +44,7 @@ export class TweetsController {
     private readonly getRecentTweetsUseCase: GetRecentTweetsUseCase,
   ) {}
 
-    /**
-   * Crear un nuevo tweet
-   * POST /tweets
-   */
+  // Check Auth Guard in order to know what injects the user info
   @UseGuards(JwtAuthGuard)
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -61,17 +58,14 @@ export class TweetsController {
     };
 
     const tweet = await this.createTweetUseCase.execute(command);
-    
+
+    //TODO: Switch to response without data object
     return {
       message: 'Tweet created successfully',
       data: this.formatTweetResponse(tweet),
     };
   }
 
-  /**
-   * Obtener tweets recientes (timeline básica)
-   * GET /tweets?limit=20&skip=0
-   */
   @Get()
   async getRecentTweets(@Query('limit') limit?: string, @Query('skip') skip?: string) {
     const limitNumber = limit ? Number(limit) : NaN;
@@ -116,7 +110,7 @@ export class TweetsController {
    * Obtener tweets de un autor
    * GET /tweets/author/:authorId
    */
-  @Get('user/:authorId')
+  @Get('author/:authorId')
   async getTweetsByAuthor(@Param('authorId') authorId: string) {
     const tweets = await this.getTweetsByAuthorUseCase.execute(authorId);
     
@@ -189,6 +183,9 @@ export class TweetsController {
 
   /**
    * Helper para formatear respuesta del tweet
+   * 
+   * // A discutir si este helper debería estar en otro sitio --- IGNORE ---
+   * // por ejemplo, en la capa de aplicación
    */
   private formatTweetResponse(tweet: any) {
     return {

@@ -25,6 +25,7 @@ export class CreateTweetUseCase {
     // Crear value objects
     const tweetId = TweetId.generate();
     const content = new TweetContent(command.content);
+    // Estamos en contexto de tweet, asi que a UserId le cambiaremos el nombre a authorId
     const authorId = new UserId(command.authorId);
     
     // Crear value objects opcionales

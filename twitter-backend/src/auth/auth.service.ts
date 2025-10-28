@@ -2,7 +2,8 @@ import { Injectable, UnauthorizedException, ConflictException, NotFoundException
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User, UserDocument, UserRole } from '../users/schemas/user.schema';
+import { UserModel, UserDocument } from '../users/infrastructure/database/mongodb/models/user.model';
+import { UserRole } from '../users/domain/entities/user.entity';
 import { CreateUserDto, LoginDto, ChangePasswordDto } from '../users/dto/user.dto';
 
 export interface JwtPayload {
@@ -28,7 +29,7 @@ export interface AuthResponse {
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @InjectModel(UserModel.name) private userModel: Model<UserDocument>,
     private jwtService: JwtService,
   ) {}
 
@@ -111,7 +112,7 @@ export class AuthService {
     };
   }
 
-  async validateUser(payload: JwtPayload): Promise<User> {
+  async validateUser(payload: JwtPayload): Promise<UserDocument> {
     const user = await this.userModel.findById(payload.sub).select('-password').exec();
     if (!user || !user.isActive) {
       throw new UnauthorizedException('User not found or inactive');
@@ -136,7 +137,7 @@ export class AuthService {
     return { message: 'Password changed successfully' };
   }
 
-  async promoteToAdmin(userId: string): Promise<User> {
+  async promoteToAdmin(userId: string): Promise<UserDocument> {
     const user = await this.userModel
       .findByIdAndUpdate(
         userId,

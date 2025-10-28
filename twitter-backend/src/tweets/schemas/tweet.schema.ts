@@ -1,5 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+import { UserModel } from '../../users/infrastructure/database/mongodb/models/user.model';
+import { TweetModel } from '../infrastructure/database/mongodb/models/tweet.model';
 
 export type TweetDocument = Tweet & Document;
 
@@ -32,7 +34,7 @@ export class Tweet {
   @Prop({ required: true })
   content: string;
 
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+  @Prop({ type: Types.ObjectId, ref: UserModel.name, required: true })
   userId: Types.ObjectId;
 
   @Prop({ type: String, enum: TweetTypeSchema, default: TweetTypeSchema.ORIGINAL })
@@ -53,10 +55,10 @@ export class Tweet {
   @Prop({ type: [String], default: [] })
   mentions: string[];
 
-  @Prop({ type: Types.ObjectId, ref: 'Tweet' })
+  @Prop({ type: Types.ObjectId, ref: TweetModel.name })
   originalTweetId?: Types.ObjectId;
 
-  @Prop({ type: Types.ObjectId, ref: 'Tweet' })
+  @Prop({ type: Types.ObjectId, ref: TweetModel.name })
   parentTweetId?: Types.ObjectId;
 
   @Prop({ default: false })

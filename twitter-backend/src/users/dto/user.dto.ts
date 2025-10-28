@@ -1,5 +1,5 @@
 import { IsEmail, IsNotEmpty, IsOptional, IsString, MinLength, IsEnum } from 'class-validator';
-import { UserRole } from '../schemas/user.schema';
+import { UserRole } from '../domain/entities/user.entity';
 
 export class CreateUserDto {
   @IsNotEmpty()

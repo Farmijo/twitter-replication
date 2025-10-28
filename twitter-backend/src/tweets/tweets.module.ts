@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { TweetModel, TweetSchema } from './infrastructure/database/mongodb/models/tweet.model';
-import { User, UserSchema } from '../users/schemas/user.schema';
+import { UserModel, UserSchema } from '../users/infrastructure/database/mongodb/models/user.model';
 
 // Hexagonal Architecture - Controllers
 import { TweetsController } from './controllers/tweets.controller';
@@ -29,8 +29,8 @@ import { TWEET_TOKENS } from './application/tokens';
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: 'Tweet', schema: TweetSchema },
-      { name: User.name, schema: UserSchema },
+  { name: TweetModel.name, schema: TweetSchema },
+  { name: UserModel.name, schema: UserSchema },
     ]),
   ],
   controllers: [
