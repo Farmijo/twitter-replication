@@ -3,9 +3,12 @@ export interface User {
   username: string;
   email?: string;
   role?: 'USER' | 'ADMIN';
+  bio?: string;
   following?: string[];
   followers?: string[];
   profileImage?: string;
+  followersCount?: number;
+  followingCount?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -68,7 +71,47 @@ export interface PaginatedResponse<T> {
 export interface UserStats {
   followingCount: number;
   followersCount: number;
-  tweetsCount: number;
+  tweetsCount?: number;
+}
+
+export interface FollowActionResponse {
+  message: string;
+  following: boolean;
+}
+
+export interface FollowSummary {
+  id: string;
+  username?: string;
+  email?: string;
+  profileImage?: string;
+  followersCount?: number;
+  followingCount?: number;
+  bio?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface FollowPagination {
+  total: number;
+  limit: number;
+  skip: number;
+}
+
+export interface FollowListResponse {
+  message: string;
+  data: FollowSummary[];
+  pagination: FollowPagination;
+}
+
+export interface FollowListResult {
+  message: string;
+  users: FollowSummary[];
+  pagination: FollowPagination;
+}
+
+export interface FollowStatusResponse {
+  isFollowing: boolean;
+  message: string;
 }
 
 export interface LoginCredentials {
