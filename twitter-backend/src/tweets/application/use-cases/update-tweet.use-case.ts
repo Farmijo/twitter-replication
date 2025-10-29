@@ -22,22 +22,18 @@ export class UpdateTweetUseCase {
     const tweetId = new TweetId(command.tweetId);
     const authorId = AuthorId.fromString(command.userId);
 
-    // Obtener el tweet
     const tweet = await this.tweetRepository.findById(tweetId);
     
     if (!tweet) {
       throw new NotFoundException(`Tweet with id ${command.tweetId} not found`);
     }
 
-    // Verificar que el usuario puede editar el tweet
     if (!tweet.canBeEditedBy(authorId)) {
       throw new Error('You can only edit your own tweets and only within 5 minutes of creation');
     }
 
-    // Actualizar el contenido usando el método del dominio
     tweet.updateContent(command.newContent);
 
-    // Guardar los cambios
     return await this.tweetRepository.update(tweet);
   }
 }
