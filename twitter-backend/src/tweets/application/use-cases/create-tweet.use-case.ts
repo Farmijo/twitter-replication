@@ -22,13 +22,11 @@ export class CreateTweetUseCase {
   ) {}
 
   async execute(command: CreateTweetCommand): Promise<Tweet> {
-    // Crear value objects
     const tweetId = TweetId.generate();
     const content = new TweetContent(command.content);
-  // El identificador del autor se modela con AuthorId para mantener el contexto del agregado
-  const authorId = AuthorId.fromString(command.authorId);
+    const authorId = AuthorId.fromString(command.authorId);
     
-    // Crear value objects opcionales
+    //Checkout retweet and reply IDs
     const originalTweetId = command.originalTweetId 
       ? new TweetId(command.originalTweetId) 
       : null;
@@ -36,7 +34,6 @@ export class CreateTweetUseCase {
       ? new TweetId(command.parentTweetId) 
       : null;
 
-    // Crear tweet usando factory methods del dominio
     let tweet: Tweet;
     
     switch (command.type) {
