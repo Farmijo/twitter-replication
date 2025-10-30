@@ -43,6 +43,18 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  async logout(@Request() req) {
+    const tokenId = req.user?.tokenId;
+    const userId = req.user?.id ?? req.user?._id?.toString?.();
+    await this.authService.logout(tokenId, userId);
+    return {
+      message: 'Logout successful',
+    };
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get('profile')
   async getProfile(@Request() req) {
     return {

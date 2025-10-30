@@ -17,6 +17,18 @@ services:
     networks:
       - app-network
 
+  redis:
+    image: redis:7-alpine
+    container_name: redis-cache
+    restart: always
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-network
+
   api:
     build:
       context: .
@@ -31,9 +43,14 @@ services:
       - JWT_SECRET=${JWT_SECRET:-your-secret-key-change-this}
       - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-7d}
       - PORT=${PORT:-3000}
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - REDIS_DB=${REDIS_DB:-0}
       - CHOKIDAR_USEPOLLING=true
     depends_on:
       - mongodb
+      - redis
     volumes:
       - .:/app
       - /app/node_modules
@@ -43,6 +60,7 @@ services:
 
 volumes:
   mongodb_data:
+  redis_data:
 
 networks:
   app-network:

@@ -96,6 +96,7 @@ export class TweetsController {
    * Obtener tweet por ID
    * GET /tweets/:id
    */
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async getTweetById(@Param('id') id: string) {
     const tweet = await this.getTweetByIdUseCase.execute(id);

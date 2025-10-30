@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { BullModule } from '@nestjs/bullmq';
 import { AuthModule } from '../src/auth/auth.module';
 import { UsersModule } from '../src/users/users.module';
 import { TweetsModule } from '../src/tweets/tweets.module';
@@ -18,6 +19,14 @@ export class TestAppFactory {
       imports: [
         ConfigModule.forRoot({ isGlobal: true }),
         MongooseModule.forRoot(mongoUri),
+        BullModule.forRoot({
+          connection: {
+            host: process.env.REDIS_HOST || 'localhost',
+            port: Number(process.env.REDIS_PORT || 6379),
+            password: process.env.REDIS_PASSWORD || undefined,
+            db: Number(process.env.REDIS_DB || 0),
+          },
+        }),
         AuthModule,
         UsersModule,
         TweetsModule,
